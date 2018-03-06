@@ -11,8 +11,7 @@
     "copy:files": "cp pages/*.{pdf,txt,png,jpg,jpeg,gif} docs/",
     "copy": "npm run copy:files",
     "mkdocs": "mkdir docs && touch docs/styles.css",
-    "deploy": "npm run build && cp -R CNAME ./public/* ./docs/ && gh-pages -d docs -b master"
-  
+    "deploy": "npm run build && cp -R CNAME ./public/* ./docs/"  
   },
   "keywords": [
     "gatsby",
