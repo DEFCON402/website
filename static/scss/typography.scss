@@ -88,7 +88,7 @@ header, main, section {
 
 a {
   background: transparent;
-  color: $coal;
+  color: $dcred;
   text-decoration: none;
   transition: all .3s;
   &:active {
@@ -96,10 +96,10 @@ a {
   }
   &:hover {
     outline: 0;
-    color: $coal;
+    color: $dcred;
   }
   &:active {
-    color: $coal;
+    color: $dcred;
   }
 }
 
