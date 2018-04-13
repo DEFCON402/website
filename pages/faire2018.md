@@ -13,4 +13,4 @@ Omaha Mini Maker Faire site: https://omaha.makerfaire.com/
 
 Exhibitors: https://omaha.makerfaire.com/makers-exhibits/
 
-Download the [Scytale handout](../blob/master/files/public/files/omahaminimakerfaire2018/dc402-omahamakerfaire2018-scytale.pdf)
+Download the [Scytale handout](../files/omahaminimakerfaire2018/dc402-omahamakerfaire2018-scytale.pdf)
