@@ -19,7 +19,7 @@ class SiteIndex extends React.Component {
                 <div className='text'>
                   <div className='page-title'>
                     <div className='highlight-title'>
-                      Welcome to the <div className='bold-text'>Omaha Defcon Chapter.</div>
+                      Welcome to the <div className='bold-text'>Omaha DEF CON Group.</div>
                     </div>
                   </div>
                   <div className='home-divs'>

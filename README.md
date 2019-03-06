@@ -1,6 +1,6 @@
 # defcon402.org
 
-A local DEF CON chapter based in Omaha, Nebraska.
+A local DEF CON Group based in Omaha, Nebraska.
 
 
 ## About Our Group
