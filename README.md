@@ -93,7 +93,7 @@ This is a basic diagram of how the site works so you can find what [you're looki
 
 
 
-## Publishing Changes 
+## Publishing Changes
 
 * Push `/public/` to github pages
 	* `npm run deploy`
