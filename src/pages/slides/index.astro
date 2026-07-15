@@ -14,8 +14,9 @@ function fmtDate(d: Date) {
 <Base title="Slides" page="slides">
   <h2 class="page-heading">Slides</h2>
 
-  <div class="talks-list">
-    {talks.map((talk, i) => (
+  {talks.length > 0 && (() => {
+    const [latest, ...past] = talks;
+    const renderCard = (talk: typeof talks[0], i: number) => (
       <article class="talk-card" data-index={i} data-file={`/slides/${talk.data.file}`} data-title={talk.data.title}>
         <div class="thumb-wrap" data-index={i}>
           <canvas class="thumb-canvas" id={`canvas-${i}`}></canvas>
@@ -45,13 +46,30 @@ function fmtDate(d: Date) {
           <p class="talk-summary">{talk.body}</p>
         </div>
       </article>
-    ))}
-  </div>
+    );
+    return (
+      <>
+        <div class="section-label">Last Meeting</div>
+        <div class="talks-list">
+          {renderCard(latest, 0)}
+        </div>
 
-  <a href="https://goo.gl/forms/CX0CMBDszowuQaak2" class="speak-banner" target="_blank" rel="noopener">
-    <span class="speak-banner-text">Want to give a talk at DC402?</span>
-    <span class="speak-banner-link">Submit a talk →</span>
-  </a>
+        <a href="https://goo.gl/forms/CX0CMBDszowuQaak2" class="speak-banner" target="_blank" rel="noopener">
+          <span class="speak-banner-text">Want to give a talk at DC402?</span>
+          <span class="speak-banner-link">Submit a talk →</span>
+        </a>
+
+        {past.length > 0 && (
+          <>
+            <div class="section-label past-label">Past Meetings</div>
+            <div class="talks-list">
+              {past.map((talk, i) => renderCard(talk, i + 1))}
+            </div>
+          </>
+        )}
+      </>
+    );
+  })()}
 </Base>
 
 <!-- Lightbox -->
@@ -106,7 +124,7 @@ function fmtDate(d: Date) {
     var file   = card.dataset.file;
     var canvas = document.getElementById('canvas-' + idx);
 
-    pdfjsLib.getDocument(file).promise.then(function (pdf) {
+    pdfjsLib.getDocument({ url: file, disableRange: true, disableStream: true }).promise.then(function (pdf) {
       return pdf.getPage(1);
     }).then(function (page) {
       var vp    = page.getViewport({ scale: 1 });
@@ -115,7 +133,8 @@ function fmtDate(d: Date) {
       canvas.width  = sv.width;
       canvas.height = sv.height;
       page.render({ canvasContext: canvas.getContext('2d'), viewport: sv });
-    }).catch(function () {
+    }).catch(function (err) {
+      console.warn('PDF thumbnail failed:', file, err);
       canvas.style.background = '#1a1a1f';
     });
   });
@@ -135,7 +154,7 @@ function fmtDate(d: Date) {
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
 
-    pdfjsLib.getDocument(file).promise.then(function (pdf) {
+    pdfjsLib.getDocument({ url: file, disableRange: true, disableStream: true }).promise.then(function (pdf) {
       currentPdf  = pdf;
       currentPage = 1;
       renderPage(1);
@@ -193,6 +212,18 @@ function fmtDate(d: Date) {
 </script>
 
 <style>
+  /* ── Section labels ─────────────────────────────────── */
+  .section-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .section-label + .talks-list { margin-bottom: 1.5rem; }
+  .past-label { color: var(--text-muted); margin-top: 2.5rem; }
+
   /* ── Talk cards ──────────────────────────────────────── */
   .talks-list { display: flex; flex-direction: column; gap: 1.25rem; }
 
