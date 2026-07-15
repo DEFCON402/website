@@ -13,6 +13,6 @@
   "author": "dc402",
   "license": "MIT",
   "dependencies": {
-    "astro": "^4.16.18"
+    "astro": "^6.4.8"
   }
 }

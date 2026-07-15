@@ -3,4 +3,5 @@ plugins/
 platforms/
 npm-debug.log
 .DS_Store
+.astro/
 
