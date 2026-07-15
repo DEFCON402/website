@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+const links = [
+  { href: 'https://www.meetup.com/omaha-hackers/',           icon: 'fa-meetup',      label: 'Meetup',       handle: 'Omaha Hackers' },
+  { href: 'https://twitter.com/defcon402',                   icon: 'fa-twitter',     label: 'Twitter / X',  handle: '@defcon402' },
+  { href: 'https://github.com/DEFCON402/website',            icon: 'fa-github-alt',  label: 'GitHub',       handle: 'DEFCON402' },
+  { href: 'https://www.linkedin.com/groups/13554437',        icon: 'fa-linkedin',    label: 'LinkedIn',     handle: 'DC402 Group' },
+  { href: 'https://www.facebook.com/DC402/',                 icon: 'fa-facebook',    label: 'Facebook',     handle: '/DC402' },
+  { href: 'mailto:info@dc402.org',                           icon: 'fa-envelope-o',  label: 'Email',        handle: 'info@dc402.org' },
+];
+---
+<Base title="Connect" page="connect">
+  <h2 class="page-heading">Reach Out</h2>
+  <div class="connect-grid">
+    {links.map(l => (
+      <a href={l.href} class="connect-card card" target={l.href.startsWith('mailto') ? undefined : '_blank'} rel="noopener">
+        <i class={`fa ${l.icon} connect-icon`} aria-hidden="true"></i>
+        <div>
+          <div class="connect-label">{l.label}</div>
+          <div class="connect-handle">{l.handle}</div>
+        </div>
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .connect-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  @media (max-width: 700px) { .connect-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 440px) { .connect-grid { grid-template-columns: 1fr; } }
+  .connect-card { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
+  .connect-icon { font-size: 2rem; color: var(--accent); width: 2.5rem; text-align: center; flex-shrink: 0; }
+  .connect-label { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .connect-handle { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .connect-card:hover .connect-label { color: var(--accent-light); }
+</style>

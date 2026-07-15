@@ -1,0 +1,433 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const talks = (await getCollection('talks')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+function fmtDate(d: Date) {
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+---
+
+<Base title="Slides" page="slides">
+  <h2 class="page-heading">Slides</h2>
+
+  <div class="talks-list">
+    {talks.map((talk, i) => (
+      <article class="talk-card" data-index={i} data-file={`/slides/${talk.data.file}`} data-title={talk.data.title}>
+        <div class="thumb-wrap" data-index={i}>
+          <canvas class="thumb-canvas" id={`canvas-${i}`}></canvas>
+          <div class="thumb-overlay">
+            <a href={`/slides/${talk.data.file}`} download class="thumb-btn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              Download
+            </a>
+            <button class="thumb-btn view-btn" data-index={i} aria-label="View slides">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              View
+            </button>
+          </div>
+        </div>
+        <div class="talk-info">
+          <h3 class="talk-title">{talk.data.title}</h3>
+          <div class="talk-meta">
+            <span class="meta-speaker">{talk.data.speaker}</span>
+            <span class="meta-sep">·</span>
+            <span class="meta-date">{fmtDate(talk.data.date)}</span>
+          </div>
+          {talk.data.tags && (
+            <div class="talk-tags">
+              {talk.data.tags.map(t => <span class="tag">{t}</span>)}
+            </div>
+          )}
+          <p class="talk-summary">{talk.body}</p>
+        </div>
+      </article>
+    ))}
+  </div>
+
+  <a href="https://goo.gl/forms/CX0CMBDszowuQaak2" class="speak-banner" target="_blank" rel="noopener">
+    <span class="speak-banner-text">Want to give a talk at DC402?</span>
+    <span class="speak-banner-link">Submit a talk →</span>
+  </a>
+</Base>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Slide viewer">
+  <div class="lb-modal">
+    <div class="lb-header">
+      <span class="lb-title" id="lb-title"></span>
+      <div class="lb-header-right">
+        <a id="lb-download" href="#" download class="lb-dl-btn" title="Download">
+          <svg viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        </a>
+        <button class="lb-close" id="lb-close" aria-label="Close">&#x2715;</button>
+      </div>
+    </div>
+    <div class="lb-body" id="lb-body">
+      <canvas id="lb-canvas"></canvas>
+    </div>
+    <div class="lb-footer">
+      <button class="lb-nav" id="lb-prev">&#9664; Prev</button>
+      <span class="lb-page" id="lb-page"></span>
+      <button class="lb-nav" id="lb-next">Next &#9654;</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" is:inline></script>
+<script is:inline>
+(function () {
+  if (typeof pdfjsLib === 'undefined') return;
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  var lb        = document.getElementById('lightbox');
+  var lbModal   = lb.querySelector('.lb-modal');
+  var lbTitle   = document.getElementById('lb-title');
+  var lbBody    = document.getElementById('lb-body');
+  var lbCanvas  = document.getElementById('lb-canvas');
+  var lbPage    = document.getElementById('lb-page');
+  var lbPrev    = document.getElementById('lb-prev');
+  var lbNext    = document.getElementById('lb-next');
+  var lbClose   = document.getElementById('lb-close');
+  var lbDl      = document.getElementById('lb-download');
+
+  var currentPdf  = null;
+  var currentPage = 1;
+  var renderTask  = null;
+
+  // ── Thumbnails ──────────────────────────────────────────
+  document.querySelectorAll('.thumb-wrap').forEach(function (wrap) {
+    var idx    = parseInt(wrap.dataset.index);
+    var card   = wrap.closest('.talk-card');
+    var file   = card.dataset.file;
+    var canvas = document.getElementById('canvas-' + idx);
+
+    pdfjsLib.getDocument(file).promise.then(function (pdf) {
+      return pdf.getPage(1);
+    }).then(function (page) {
+      var vp    = page.getViewport({ scale: 1 });
+      var scale = 210 / vp.width;
+      var sv    = page.getViewport({ scale: scale });
+      canvas.width  = sv.width;
+      canvas.height = sv.height;
+      page.render({ canvasContext: canvas.getContext('2d'), viewport: sv });
+    }).catch(function () {
+      canvas.style.background = '#1a1a1f';
+    });
+  });
+
+  // ── View buttons ─────────────────────────────────────────
+  document.querySelectorAll('.view-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var idx  = parseInt(btn.dataset.index);
+      var card = document.querySelector('.talk-card[data-index="' + idx + '"]');
+      openLightbox(card.dataset.file, card.dataset.title);
+    });
+  });
+
+  function openLightbox(file, title) {
+    lbTitle.textContent = title;
+    lbDl.href = file;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    pdfjsLib.getDocument(file).promise.then(function (pdf) {
+      currentPdf  = pdf;
+      currentPage = 1;
+      renderPage(1);
+    });
+  }
+
+  function renderPage(n) {
+    if (!currentPdf) return;
+    if (renderTask) { renderTask.cancel(); renderTask = null; }
+
+    currentPdf.getPage(n).then(function (page) {
+      var bodyW  = lbBody.clientWidth  - 32;
+      var bodyH  = lbBody.clientHeight - 32;
+      var vp     = page.getViewport({ scale: 1 });
+      var scale  = Math.min(bodyW / vp.width, bodyH / vp.height, 2);
+      var sv     = page.getViewport({ scale: scale });
+
+      lbCanvas.width  = sv.width;
+      lbCanvas.height = sv.height;
+      lbPage.textContent = 'Page ' + n + ' of ' + currentPdf.numPages;
+      lbPrev.disabled = n <= 1;
+      lbNext.disabled = n >= currentPdf.numPages;
+
+      renderTask = page.render({ canvasContext: lbCanvas.getContext('2d'), viewport: sv });
+    });
+  }
+
+  function closeLightbox() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    currentPdf  = null;
+    currentPage = 1;
+    if (renderTask) { renderTask.cancel(); renderTask = null; }
+  }
+
+  lbPrev.addEventListener('click', function () {
+    if (currentPdf && currentPage > 1) { currentPage--; renderPage(currentPage); }
+  });
+  lbNext.addEventListener('click', function () {
+    if (currentPdf && currentPage < currentPdf.numPages) { currentPage++; renderPage(currentPage); }
+  });
+  lbClose.addEventListener('click', closeLightbox);
+
+  lb.addEventListener('click', function (e) {
+    if (e.target === lb) closeLightbox();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight' && currentPdf && currentPage < currentPdf.numPages) { currentPage++; renderPage(currentPage); }
+    if (e.key === 'ArrowLeft'  && currentPdf && currentPage > 1) { currentPage--; renderPage(currentPage); }
+  });
+}());
+</script>
+
+<style>
+  /* ── Talk cards ──────────────────────────────────────── */
+  .talks-list { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .talk-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: border-color 0.2s;
+  }
+  .talk-card:hover { border-color: var(--border-accent); }
+
+  /* Thumbnail */
+  .thumb-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 210px;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #111;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thumb-canvas { display: block; width: 100%; height: auto; }
+
+  .thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .thumb-wrap:hover .thumb-overlay { opacity: 1; }
+
+  .thumb-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255,255,255,0.85);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .thumb-btn svg { width: 28px; height: 28px; fill: currentColor; }
+  .thumb-btn:hover { color: #fff; }
+
+  /* Info panel */
+  .talk-info { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .talk-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.25;
+  }
+
+  .talk-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+  .meta-speaker { font-weight: 500; color: rgba(240,240,240,0.8); }
+  .meta-sep { color: var(--border); }
+
+  .talk-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .tag {
+    background: rgba(182,77,77,0.15);
+    color: var(--accent-light);
+    border: 1px solid rgba(182,77,77,0.28);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .talk-summary {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  @media (max-width: 640px) {
+    .talk-card { flex-direction: column; }
+    .thumb-wrap { width: 100%; }
+    .thumb-overlay { opacity: 1; background: rgba(0,0,0,0.55); }
+  }
+
+  /* ── Lightbox ──────────────────────────────────────────── */
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  #lightbox.open { display: flex; }
+
+  .lb-modal {
+    background: #131316;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    width: 90vw;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  }
+
+  .lb-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+    gap: 1rem;
+  }
+  .lb-title {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lb-header-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+  .lb-dl-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px;
+    color: var(--text-muted);
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .lb-dl-btn svg { width: 18px; height: 18px; fill: currentColor; }
+  .lb-dl-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+  .lb-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .lb-close:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+  .lb-body {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1rem;
+  }
+  #lb-canvas { display: block; max-width: 100%; border-radius: 4px; }
+
+  .lb-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.6rem 1rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+  }
+
+  .lb-nav {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.4rem 1.1rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .lb-nav:not(:disabled):hover { background: var(--accent-light); }
+  .lb-nav:disabled { opacity: 0.3; cursor: default; }
+
+  .lb-page { color: var(--text-muted); font-size: 0.78rem; min-width: 90px; text-align: center; }
+
+  .speak-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: rgba(182,77,77,0.12);
+    border: 1px solid rgba(182,77,77,0.28);
+    border-radius: var(--radius);
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .speak-banner:hover { background: rgba(182,77,77,0.2); border-color: rgba(182,77,77,0.5); }
+  .speak-banner-text { font-size: 0.9rem; color: var(--text-muted); }
+  .speak-banner-link { font-size: 0.85rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+</style>

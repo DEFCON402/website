@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+const faqs = [
+  { section: 'About the group', items: [
+    { q: 'What is DEF CON?', a: 'DEF CON is the largest security convention in the world, held every year in Las Vegas, NV. DC402 is the Omaha-area DEF CON group.' },
+  ]},
+  { section: 'About the meetings', items: [
+    { q: 'How often do you meet?', a: 'Every second Tuesday of the month. We sometimes have smaller informal hacking sessions in between.' },
+  ]},
+  { section: 'Joining', items: [
+    { q: 'How can I join the Slack channel?', a: 'Send us an email at info@dc402.org and we\'ll send you an invite.' },
+  ]},
+  { section: 'Contributing', items: [
+    { q: 'How can I contribute to the group?', a: 'Reach out via email or the Contact Form. The best contribution is giving a talk. All skill levels welcome.' },
+  ]},
+];
+---
+<Base title="FAQ">
+  <h2 class="page-heading">Frequently Asked Questions</h2>
+  <div class="faq-list">
+    {faqs.map(section => (
+      <div class="faq-section">
+        <h3 class="section-title">{section.section}</h3>
+        {section.items.map(item => (
+          <div class="card faq-item">
+            <div class="faq-q">{item.q}</div>
+            <div class="faq-a">{item.a}</div>
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .faq-list { display: flex; flex-direction: column; gap: 1.5rem; }
+  .faq-section { display: flex; flex-direction: column; gap: 0.75rem; }
+  .section-title { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.25rem; }
+  .faq-item { display: flex; flex-direction: column; gap: 0.5rem; }
+  .faq-q { font-weight: 600; color: var(--text); font-size: 0.95rem; }
+  .faq-a { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+</style>

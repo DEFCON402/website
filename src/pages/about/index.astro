@@ -1,0 +1,95 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const board = [
+  { name: 'Adam', email: 'adam@dc402.org' },
+  { name: 'Bryan', email: 'bryan@dc402.org' },
+  { name: 'Henry', email: 'henry@dc402.org' },
+  { name: 'Jason', email: 'jason@dc402.org' },
+  { name: 'Tim', email: 'tim@dc402.org' },
+];
+
+const founders = [
+  { name: 'Jessi' },
+  { name: 'Brad' },
+];
+---
+<Base title="About Us">
+  <h2 class="page-heading">About Us</h2>
+
+  <div class="card about-card">
+    <p>DC402 is Omaha's DEF CON Group, gathering every <strong>second Tuesday</strong> of the month at a central Omaha venue.
+    We are an informal, social community that leans technical but stays genuinely welcoming to anyone curious about security and technology.</p>
+
+    <p>Our members span a wide range of backgrounds: U.S. government and military, digital forensics, law enforcement, capture-the-flag competitors, industry practitioners, academics, and people who simply want to understand how things work.
+    That breadth is intentional. Good ideas come from diverse perspectives, and we would rather have a big tent than a narrow one.</p>
+
+    <p>Talks at our meetings are most often security-related, but we welcome drifts into adjacent territory including tech policy, privacy, hardware, radio, and anything technically interesting.
+    You do not need to be an expert to present. A curious question, a weekend project, or a half-finished idea is more than enough to get on the schedule.</p>
+
+    <p>DC402 is a registered <strong>501(c)(3)</strong> non-profit organization.</p>
+  </div>
+
+  <div class="section-heading">Active Board</div>
+  <div class="people-grid">
+    {board.map(m => (
+      <div class="person-card card">
+        <div class="person-name">{m.name}</div>
+        <a href={`mailto:${m.email}`} class="person-email">{m.email}</a>
+      </div>
+    ))}
+  </div>
+
+  <div class="section-heading alumni-heading">Alumni</div>
+  <p class="alumni-note">Jessi and Brad helped put in the early work that got DC402 off the ground. They have since moved on to new cities, but their contributions are appreciated.</p>
+  <div class="people-grid alumni-grid">
+    {founders.map(f => (
+      <div class="person-card card alumni-card">
+        <div class="person-name">{f.name}</div>
+      </div>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .about-card p { font-size: 0.95rem; line-height: 1.8; color: var(--text-muted); margin-bottom: 1.1rem; }
+  .about-card p:last-child { margin-bottom: 0; }
+  .about-card strong { color: var(--text); }
+
+  .section-heading {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin: 2rem 0 0.75rem;
+  }
+  .alumni-heading { color: var(--text-muted); }
+
+  .alumni-note {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+  }
+
+  .people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .person-card {
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .person-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .person-email { font-size: 0.72rem; color: var(--accent); text-decoration: none; transition: color 0.15s; }
+  .person-email:hover { color: var(--accent-light); }
+  .person-email.muted { color: var(--text-muted); pointer-events: none; }
+
+  .alumni-card { opacity: 0.6; }
+</style>

@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+<Base title="Schedule" page="schedule">
+  <h2 class="page-heading">Schedule</h2>
+  <div class="card cal-card">
+    <p class="cal-note">DC402 meets every <strong>second Tuesday</strong> of the month. Check the calendar below for specific venues and any special events.</p>
+    <iframe
+      class="cal-frame"
+      src="https://calendar.google.com/calendar/embed?src=402defcon%40gmail.com&ctz=America/Chicago"
+      style="border:0"
+      width="100%"
+      frameborder="0"
+      scrolling="no"
+      title="DC402 meeting calendar"
+    ></iframe>
+  </div>
+</Base>
+
+<style>
+  .cal-card { padding: 1.25rem; }
+  .cal-note { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.6; }
+  .cal-note strong { color: var(--text); }
+  .cal-frame { display: block; min-height: 500px; border-radius: 8px; }
+</style>
