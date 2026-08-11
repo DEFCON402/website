@@ -1,5 +1,6 @@
 ---
-title: "December Lightning Talks"
+title: "Hackers Journey to Ham Radio"
 date: 2021-12-14
-speaker: "Multiple"
+file: "hackers-journey-to-ham-radio.pdf"
+speaker: "Tyler Rosonke"
 ---
