@@ -5,6 +5,8 @@ import { getCollection } from 'astro:content';
 const talks = (await getCollection('talks')).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
+const latest = talks[0];
+const past = talks.slice(1);
 
 function fmtDate(d: Date) {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -14,62 +16,86 @@ function fmtDate(d: Date) {
 <Base title="Slides" page="slides">
   <h2 class="page-heading">Slides</h2>
 
-  {talks.length > 0 && (() => {
-    const [latest, ...past] = talks;
-    const renderCard = (talk: typeof talks[0], i: number) => (
-      <article class="talk-card" data-index={i} data-file={`/slides/${talk.data.file}`} data-title={talk.data.title}>
-        <div class="thumb-wrap" data-index={i}>
-          <canvas class="thumb-canvas" id={`canvas-${i}`}></canvas>
-          <div class="thumb-overlay">
-            <a href={`/slides/${talk.data.file}`} download class="thumb-btn">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-              Download
-            </a>
-            <button class="thumb-btn view-btn" data-index={i} aria-label="View slides">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-              View
-            </button>
-          </div>
-        </div>
-        <div class="talk-info">
-          <h3 class="talk-title">{talk.data.title}</h3>
-          <div class="talk-meta">
-            <span class="meta-speaker">{talk.data.speaker}</span>
-            <span class="meta-sep">·</span>
-            <span class="meta-date">{fmtDate(talk.data.date)}</span>
-          </div>
-          {talk.data.tags && (
-            <div class="talk-tags">
-              {talk.data.tags.map(t => <span class="tag">{t}</span>)}
+  {latest && (
+    <>
+      <div class="section-label">Last Meeting</div>
+      <div class="talks-list">
+        <article class="talk-card" data-index={0} data-file={`/slides/${latest.data.file}`} data-title={latest.data.title}>
+          <div class="thumb-wrap" data-index={0}>
+            <canvas class="thumb-canvas" id="canvas-0"></canvas>
+            <div class="thumb-overlay">
+              <a href={`/slides/${latest.data.file}`} download class="thumb-btn">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                Download
+              </a>
+              <button class="thumb-btn view-btn" data-index={0} aria-label="View slides">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                View
+              </button>
             </div>
-          )}
-          <p class="talk-summary">{talk.body}</p>
-        </div>
-      </article>
-    );
-    return (
-      <>
-        <div class="section-label">Last Meeting</div>
-        <div class="talks-list">
-          {renderCard(latest, 0)}
-        </div>
-
-        <a href="https://goo.gl/forms/CX0CMBDszowuQaak2" class="speak-banner" target="_blank" rel="noopener">
-          <span class="speak-banner-text">Want to give a talk at DC402?</span>
-          <span class="speak-banner-link">Submit a talk →</span>
-        </a>
-
-        {past.length > 0 && (
-          <>
-            <div class="section-label past-label">Past Meetings</div>
-            <div class="talks-list">
-              {past.map((talk, i) => renderCard(talk, i + 1))}
+          </div>
+          <div class="talk-info">
+            <h3 class="talk-title">{latest.data.title}</h3>
+            <div class="talk-meta">
+              <span class="meta-speaker">{latest.data.speaker}</span>
+              <span class="meta-sep">·</span>
+              <span class="meta-date">{fmtDate(latest.data.date)}</span>
             </div>
-          </>
-        )}
-      </>
-    );
-  })()}
+            {latest.data.tags && (
+              <div class="talk-tags">
+                {latest.data.tags.map(t => <span class="tag">{t}</span>)}
+              </div>
+            )}
+            <p class="talk-summary">{latest.body}</p>
+          </div>
+        </article>
+      </div>
+
+      <a href="https://goo.gl/forms/CX0CMBDszowuQaak2" class="speak-banner" target="_blank" rel="noopener">
+        <span class="speak-banner-text">Want to give a talk at DC402?</span>
+        <span class="speak-banner-link">Submit a talk →</span>
+      </a>
+    </>
+  )}
+
+  {past.length > 0 && (
+    <>
+      <div class="section-label past-label">Past Meetings</div>
+      <div class="talks-list">
+        {past.map((talk, i) => (
+          <article class="talk-card" data-index={i + 1} data-file={`/slides/${talk.data.file}`} data-title={talk.data.title}>
+            <div class="thumb-wrap" data-index={i + 1}>
+              <canvas class="thumb-canvas" id={`canvas-${i + 1}`}></canvas>
+              <div class="thumb-overlay">
+                <a href={`/slides/${talk.data.file}`} download class="thumb-btn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                  Download
+                </a>
+                <button class="thumb-btn view-btn" data-index={i + 1} aria-label="View slides">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  View
+                </button>
+              </div>
+            </div>
+            <div class="talk-info">
+              <h3 class="talk-title">{talk.data.title}</h3>
+              <div class="talk-meta">
+                <span class="meta-speaker">{talk.data.speaker}</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-date">{fmtDate(talk.data.date)}</span>
+              </div>
+              {talk.data.tags && (
+                <div class="talk-tags">
+                  {talk.data.tags.map(t => <span class="tag">{t}</span>)}
+                </div>
+              )}
+              <p class="talk-summary">{talk.body}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </>
+  )}
 </Base>
 
 <!-- Lightbox -->
