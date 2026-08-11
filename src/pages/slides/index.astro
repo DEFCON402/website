@@ -20,25 +20,29 @@ function fmtDate(d: Date) {
     <>
       <div class="section-label">Last Meeting</div>
       <div class="talks-list">
-        <article class="talk-card" data-index={0} data-file={`/slides/${latest.data.file}`} data-title={latest.data.title}>
-          <div class="thumb-wrap" data-index={0}>
-            <canvas class="thumb-canvas" id="canvas-0"></canvas>
-            <div class="thumb-overlay">
-              <a href={`/slides/${latest.data.file}`} download class="thumb-btn">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                Download
-              </a>
-              <button class="thumb-btn view-btn" data-index={0} aria-label="View slides">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                View
-              </button>
+        <article class="talk-card" data-index={0} data-file={latest.data.file ? `/slides/${latest.data.file}` : ''} data-title={latest.data.title}>
+          {latest.data.file ? (
+            <div class="thumb-wrap" data-index={0}>
+              <canvas class="thumb-canvas" id="canvas-0"></canvas>
+              <div class="thumb-overlay">
+                <a href={`/slides/${latest.data.file}`} download class="thumb-btn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                  Download
+                </a>
+                <button class="thumb-btn view-btn" data-index={0} aria-label="View slides">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                  View
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div class="thumb-placeholder">No slides</div>
+          )}
           <div class="talk-info">
             <h3 class="talk-title">{latest.data.title}</h3>
             <div class="talk-meta">
-              <span class="meta-speaker">{latest.data.speaker}</span>
-              <span class="meta-sep">·</span>
+              {latest.data.speaker && <span class="meta-speaker">{latest.data.speaker}</span>}
+              {latest.data.speaker && <span class="meta-sep">·</span>}
               <span class="meta-date">{fmtDate(latest.data.date)}</span>
             </div>
             {latest.data.tags && (
@@ -63,25 +67,29 @@ function fmtDate(d: Date) {
       <div class="section-label past-label">Past Meetings</div>
       <div class="talks-list">
         {past.map((talk, i) => (
-          <article class="talk-card" data-index={i + 1} data-file={`/slides/${talk.data.file}`} data-title={talk.data.title}>
-            <div class="thumb-wrap" data-index={i + 1}>
-              <canvas class="thumb-canvas" id={`canvas-${i + 1}`}></canvas>
-              <div class="thumb-overlay">
-                <a href={`/slides/${talk.data.file}`} download class="thumb-btn">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                  Download
-                </a>
-                <button class="thumb-btn view-btn" data-index={i + 1} aria-label="View slides">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                  View
-                </button>
+          <article class="talk-card" data-index={i + 1} data-file={talk.data.file ? `/slides/${talk.data.file}` : ''} data-title={talk.data.title}>
+            {talk.data.file ? (
+              <div class="thumb-wrap" data-index={i + 1}>
+                <canvas class="thumb-canvas" id={`canvas-${i + 1}`}></canvas>
+                <div class="thumb-overlay">
+                  <a href={`/slides/${talk.data.file}`} download class="thumb-btn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    Download
+                  </a>
+                  <button class="thumb-btn view-btn" data-index={i + 1} aria-label="View slides">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    View
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div class="thumb-placeholder">No slides</div>
+            )}
             <div class="talk-info">
               <h3 class="talk-title">{talk.data.title}</h3>
               <div class="talk-meta">
-                <span class="meta-speaker">{talk.data.speaker}</span>
-                <span class="meta-sep">·</span>
+                {talk.data.speaker && <span class="meta-speaker">{talk.data.speaker}</span>}
+                {talk.data.speaker && <span class="meta-sep">·</span>}
                 <span class="meta-date">{fmtDate(talk.data.date)}</span>
               </div>
               {talk.data.tags && (
@@ -265,6 +273,24 @@ function fmtDate(d: Date) {
     transition: border-color 0.2s;
   }
   .talk-card:hover { border-color: var(--border-accent); }
+
+  /* No-slides placeholder */
+  .thumb-placeholder {
+    flex-shrink: 0;
+    width: 210px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.03);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 8px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.15);
+  }
 
   /* Thumbnail */
   .thumb-wrap {

@@ -7,9 +7,9 @@ const talks = defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.date(),
-    speaker: z.string(),
-    file: z.string(),
+    file: z.string().optional(),
     fileType: z.enum(['pdf', 'pptx']).default('pdf'),
+    speaker: z.string().optional(),
     tags: z.array(z.string()).optional(),
   }),
 });
