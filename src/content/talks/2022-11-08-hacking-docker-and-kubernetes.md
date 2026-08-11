@@ -1,5 +1,5 @@
 ---
 title: "Hacking Docker and Kubernetes"
 date: 2022-11-08
-speaker: ""
+speaker: "Dominic Curcio"
 ---
