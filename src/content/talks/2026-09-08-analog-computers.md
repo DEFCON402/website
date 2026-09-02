@@ -1,5 +1,5 @@
 ---
-title: "Analog Computes"
+title: "Analog Computers"
 date: 2026-09-08
 speaker: "John Calhoun"
 tags: ["Analog", "Hardware", "Computing", "Engineering"]
