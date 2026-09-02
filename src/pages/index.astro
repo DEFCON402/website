@@ -5,7 +5,9 @@ import { getCollection } from 'astro:content';
 const allTalks = (await getCollection('talks')).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
-const latest = allTalks[0];
+const now = new Date();
+const previous = allTalks.find(t => t.data.date < now);
+const upcoming = allTalks.slice().reverse().find(t => t.data.date >= now);
 
 function fmtDate(d: Date) {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -21,34 +23,35 @@ function fmtDate(d: Date) {
       <p class="hero-sub">Security talks, hacking culture, good people. Every second Tuesday.</p>
     </div>
 
-    {latest && (
-      <a href="/slides/" class="card latest-card">
-        <div class="latest-label">Latest Talk</div>
-        <div class="latest-title">{latest.data.title}</div>
-        <div class="latest-meta">
-          <span>{latest.data.speaker}</span>
-          <span class="dot">·</span>
-          <span>{fmtDate(latest.data.date)}</span>
+    {upcoming && (
+      <div class="card next-card">
+        <div class="next-label">Upcoming Talk</div>
+        <div class="next-title">{upcoming.data.title}</div>
+        <div class="next-meta">
+          <span>{fmtDate(upcoming.data.date)}</span>
+          {upcoming.data.speaker && <><span>·</span><span>{upcoming.data.speaker}</span></>}
         </div>
-        {latest.data.tags && (
+      </div>
+    )}
+
+    {previous && (
+      <a href="/slides/" class="card latest-card">
+        <div class="latest-label">Previous Talk</div>
+        <div class="latest-title">{previous.data.title}</div>
+        <div class="latest-meta">
+          <span>{previous.data.speaker}</span>
+          <span class="dot">·</span>
+          <span>{fmtDate(previous.data.date)}</span>
+        </div>
+        {previous.data.tags && (
           <div class="latest-tags">
-            {latest.data.tags.slice(0,3).map(t => (
+            {previous.data.tags.slice(0,3).map(t => (
               <span class="tag">{t}</span>
             ))}
           </div>
         )}
       </a>
     )}
-
-    <div class="card next-card">
-      <div class="next-label">Next Talk</div>
-      <div class="next-title">Analog Computers</div>
-      <div class="next-meta">
-        <span>September 8, 2026</span>
-        <span>·</span>
-        <span>John Calhoun</span>
-      </div>
-    </div>
 
     <div class="card meeting-card">
       <div class="meeting-text">
