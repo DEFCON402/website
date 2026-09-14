@@ -5,13 +5,13 @@ import { getCollection } from 'astro:content';
 const allTalks = (await getCollection('talks')).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
-const now = new Date();
-const previous = allTalks.find(t => t.data.date < now);
-const upcoming = allTalks.slice().reverse().find(t => t.data.date >= now);
 
-function fmtDate(d: Date) {
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-}
+const talksData = allTalks.map(t => ({
+  title: t.data.title,
+  date: t.data.date.toISOString(),
+  speaker: t.data.speaker ?? null,
+  tags: t.data.tags ?? [],
+}));
 ---
 
 <Base title="DC402">
@@ -23,35 +23,61 @@ function fmtDate(d: Date) {
       <p class="hero-sub">Security talks, hacking culture, good people. Every second Tuesday.</p>
     </div>
 
-    {upcoming && (
-      <div class="card next-card">
-        <div class="next-label">Upcoming Talk</div>
-        <div class="next-title">{upcoming.data.title}</div>
-        <div class="next-meta">
-          <span>{fmtDate(upcoming.data.date)}</span>
-          {upcoming.data.speaker && <><span>·</span><span>{upcoming.data.speaker}</span></>}
-        </div>
-      </div>
-    )}
+    <div id="upcoming-card" class="card next-card" hidden>
+      <div class="next-label">Upcoming Talk</div>
+      <div id="upcoming-title" class="next-title"></div>
+      <div id="upcoming-meta" class="next-meta"></div>
+    </div>
 
-    {previous && (
-      <a href="/slides/" class="card latest-card">
-        <div class="latest-label">Previous Talk</div>
-        <div class="latest-title">{previous.data.title}</div>
-        <div class="latest-meta">
-          <span>{previous.data.speaker}</span>
-          <span class="dot">·</span>
-          <span>{fmtDate(previous.data.date)}</span>
-        </div>
-        {previous.data.tags && (
-          <div class="latest-tags">
-            {previous.data.tags.slice(0,3).map(t => (
-              <span class="tag">{t}</span>
-            ))}
-          </div>
-        )}
-      </a>
-    )}
+    <a id="previous-card" href="/slides/" class="card latest-card" hidden>
+      <div class="latest-label">Previous Talk</div>
+      <div id="previous-title" class="latest-title"></div>
+      <div id="previous-meta" class="latest-meta"></div>
+      <div id="previous-tags" class="latest-tags"></div>
+    </a>
+
+    <script define:vars={{ talksData }}>
+      (function () {
+        var talks = talksData;
+        var now = new Date();
+
+        function fmtDate(iso) {
+          return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        }
+
+        // talks is newest-first; previous = first entry before now, upcoming = last entry on/after now
+        var previous = null;
+        var upcoming = null;
+        for (var i = 0; i < talks.length; i++) {
+          var d = new Date(talks[i].date);
+          if (d < now && !previous) previous = talks[i];
+          if (d >= now) upcoming = talks[i]; // keeps overwriting → ends up as the earliest future talk
+        }
+
+        var upcomingCard = document.getElementById('upcoming-card');
+        upcomingCard.hidden = false;
+        document.getElementById('upcoming-title').textContent = upcoming ? upcoming.title : 'TBD';
+        if (upcoming) {
+          var metaParts = '<span>' + fmtDate(upcoming.date) + '</span>';
+          if (upcoming.speaker) metaParts += '<span>·</span><span>' + upcoming.speaker + '</span>';
+          document.getElementById('upcoming-meta').innerHTML = metaParts;
+        }
+
+        if (previous) {
+          var prevCard = document.getElementById('previous-card');
+          prevCard.hidden = false;
+          document.getElementById('previous-title').textContent = previous.title;
+          var pm = '';
+          if (previous.speaker) pm += '<span>' + previous.speaker + '</span><span class="dot">·</span>';
+          pm += '<span>' + fmtDate(previous.date) + '</span>';
+          document.getElementById('previous-meta').innerHTML = pm;
+          if (previous.tags && previous.tags.length) {
+            document.getElementById('previous-tags').innerHTML =
+              previous.tags.slice(0, 3).map(function (t) { return '<span class="tag">' + t + '</span>'; }).join('');
+          }
+        }
+      })();
+    </script>
 
     <div class="card meeting-card">
       <div class="meeting-text">

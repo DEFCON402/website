@@ -2,6 +2,8 @@
 title: "Analog Computers"
 date: 2026-09-08
 speaker: "John Calhoun"
+file: "my-analog-computer-journey.pdf"
+fileType: pdf
 tags: ["Analog", "Hardware", "Computing", "Engineering"]
 ---
 
