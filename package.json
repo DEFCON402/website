@@ -9,10 +9,15 @@
     "preview": "astro preview",
     "serve": "npx serve docs -p 8080"
   },
-  "keywords": ["astro", "defcon", "omaha", "402"],
+  "keywords": [
+    "astro",
+    "defcon",
+    "omaha",
+    "402"
+  ],
   "author": "dc402",
   "license": "MIT",
   "dependencies": {
-    "astro": "^6.4.8"
+    "astro": "^7.3.2"
   }
 }
