@@ -2,108 +2,101 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 
-const talks = (await getCollection('talks')).sort(
+const allTalks = (await getCollection('talks')).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
-const latest = talks[0];
-const past = talks.slice(1);
 
-function fmtDate(d: Date) {
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-}
+const talksData = allTalks.map(t => ({
+  title: t.data.title,
+  date: t.data.date.toISOString(),
+  file: t.data.file ?? null,
+  speaker: t.data.speaker ?? null,
+  tags: t.data.tags ?? [],
+  body: t.body ?? '',
+}));
 ---
 
 <Base title="Slides" page="slides">
   <h2 class="page-heading">Slides</h2>
 
-  {latest && (
-    <>
-      <div class="section-label">Last Meeting</div>
-      <div class="talks-list">
-        <article class="talk-card" data-index={0} data-file={latest.data.file ? `/slides/${latest.data.file}` : ''} data-title={latest.data.title}>
-          {latest.data.file ? (
-            <div class="thumb-wrap" data-index={0}>
-              <canvas class="thumb-canvas" id="canvas-0"></canvas>
-              <div class="thumb-overlay">
-                <a href={`/slides/${latest.data.file}`} download class="thumb-btn">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                  Download
-                </a>
-                <button class="thumb-btn view-btn" data-index={0} aria-label="View slides">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                  View
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div class="thumb-placeholder">No slides</div>
-          )}
-          <div class="talk-info">
-            <h3 class="talk-title">{latest.data.title}</h3>
-            <div class="talk-meta">
-              {latest.data.speaker && <span class="meta-speaker">{latest.data.speaker}</span>}
-              {latest.data.speaker && <span class="meta-sep">·</span>}
-              <span class="meta-date">{fmtDate(latest.data.date)}</span>
-            </div>
-            {latest.data.tags && (
-              <div class="talk-tags">
-                {latest.data.tags.map(t => <span class="tag">{t}</span>)}
-              </div>
-            )}
-            <p class="talk-summary">{latest.body}</p>
-          </div>
-        </article>
-      </div>
+  <div id="slides-last-section" hidden>
+    <div class="section-label">Last Meeting</div>
+    <div class="talks-list" id="slides-last-list"></div>
+    <a href="https://goo.gl/forms/CX0CMBDszowuQaak2" class="speak-banner" target="_blank" rel="noopener">
+      <span class="speak-banner-text">Want to give a talk at DC402?</span>
+      <span class="speak-banner-link">Submit a talk →</span>
+    </a>
+  </div>
 
-      <a href="https://goo.gl/forms/CX0CMBDszowuQaak2" class="speak-banner" target="_blank" rel="noopener">
-        <span class="speak-banner-text">Want to give a talk at DC402?</span>
-        <span class="speak-banner-link">Submit a talk →</span>
-      </a>
-    </>
-  )}
+  <div id="slides-past-section" hidden>
+    <div class="section-label past-label">Past Meetings</div>
+    <div class="talks-list" id="slides-past-list"></div>
+  </div>
 
-  {past.length > 0 && (
-    <>
-      <div class="section-label past-label">Past Meetings</div>
-      <div class="talks-list">
-        {past.map((talk, i) => (
-          <article class="talk-card" data-index={i + 1} data-file={talk.data.file ? `/slides/${talk.data.file}` : ''} data-title={talk.data.title}>
-            {talk.data.file ? (
-              <div class="thumb-wrap" data-index={i + 1}>
-                <canvas class="thumb-canvas" id={`canvas-${i + 1}`}></canvas>
-                <div class="thumb-overlay">
-                  <a href={`/slides/${talk.data.file}`} download class="thumb-btn">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-                    Download
-                  </a>
-                  <button class="thumb-btn view-btn" data-index={i + 1} aria-label="View slides">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                    View
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div class="thumb-placeholder">No slides</div>
-            )}
-            <div class="talk-info">
-              <h3 class="talk-title">{talk.data.title}</h3>
-              <div class="talk-meta">
-                {talk.data.speaker && <span class="meta-speaker">{talk.data.speaker}</span>}
-                {talk.data.speaker && <span class="meta-sep">·</span>}
-                <span class="meta-date">{fmtDate(talk.data.date)}</span>
-              </div>
-              {talk.data.tags && (
-                <div class="talk-tags">
-                  {talk.data.tags.map(t => <span class="tag">{t}</span>)}
-                </div>
-              )}
-              <p class="talk-summary">{talk.body}</p>
-            </div>
-          </article>
-        ))}
-      </div>
-    </>
-  )}
+  <script define:vars={{ talksData }}>
+  (function () {
+    var DL_ICON  = '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
+    var EYE_ICON = '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
+
+    function fmtDate(iso) {
+      return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    function esc(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function makeCard(talk, idx) {
+      var thumb = talk.file
+        ? '<div class="thumb-wrap" data-index="' + idx + '">' +
+            '<canvas class="thumb-canvas" id="canvas-' + idx + '"></canvas>' +
+            '<div class="thumb-overlay">' +
+              '<a href="/slides/' + esc(talk.file) + '" download class="thumb-btn">' + DL_ICON + 'Download</a>' +
+              '<button class="thumb-btn view-btn" data-index="' + idx + '" aria-label="View slides">' + EYE_ICON + 'View</button>' +
+            '</div>' +
+          '</div>'
+        : '<div class="thumb-placeholder">No slides</div>';
+
+      var tags = talk.tags.slice(0,3).map(function(t){ return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+
+      var info = '<div class="talk-info">' +
+        '<h3 class="talk-title">' + esc(talk.title) + '</h3>' +
+        '<div class="talk-meta">' +
+          (talk.speaker ? '<span class="meta-speaker">' + esc(talk.speaker) + '</span><span class="meta-sep">·</span>' : '') +
+          '<span class="meta-date">' + fmtDate(talk.date) + '</span>' +
+        '</div>' +
+        (tags ? '<div class="talk-tags">' + tags + '</div>' : '') +
+        '<p class="talk-summary">' + esc(talk.body.trim()) + '</p>' +
+      '</div>';
+
+      var article = document.createElement('article');
+      article.className = 'talk-card';
+      article.dataset.index = idx;
+      article.dataset.file = talk.file ? '/slides/' + talk.file : '';
+      article.dataset.title = talk.title;
+      article.innerHTML = thumb + info;
+      return article;
+    }
+
+    var now   = new Date();
+    var past  = talksData.filter(function(t){ return new Date(t.date) < now; });
+
+    if (past.length === 0) return;
+
+    var lastSection = document.getElementById('slides-last-section');
+    var lastList    = document.getElementById('slides-last-list');
+    lastSection.hidden = false;
+    lastList.appendChild(makeCard(past[0], 0));
+
+    var rest = past.slice(1);
+    if (rest.length > 0) {
+      var pastSection = document.getElementById('slides-past-section');
+      var pastList    = document.getElementById('slides-past-list');
+      pastSection.hidden = false;
+      rest.forEach(function(talk, i){ pastList.appendChild(makeCard(talk, i + 1)); });
+    }
+  })();
+  </script>
 </Base>
 
 <!-- Lightbox -->
@@ -245,7 +238,7 @@ function fmtDate(d: Date) {
 }());
 </script>
 
-<style>
+<style is:global>
   /* ── Section labels ─────────────────────────────────── */
   .section-label {
     font-size: 0.62rem;
