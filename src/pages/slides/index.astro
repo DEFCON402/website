@@ -151,7 +151,7 @@ const talksData = allTalks.map(t => ({
     var file   = card.dataset.file;
     var canvas = document.getElementById('canvas-' + idx);
 
-    pdfjsLib.getDocument({ url: file, disableRange: true, disableStream: true }).promise.then(function (pdf) {
+    pdfjsLib.getDocument(file).promise.then(function (pdf) {
       return pdf.getPage(1);
     }).then(function (page) {
       var vp    = page.getViewport({ scale: 1 });
@@ -181,7 +181,7 @@ const talksData = allTalks.map(t => ({
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
 
-    pdfjsLib.getDocument({ url: file, disableRange: true, disableStream: true }).promise.then(function (pdf) {
+    pdfjsLib.getDocument(file).promise.then(function (pdf) {
       currentPdf  = pdf;
       currentPage = 1;
       renderPage(1);
