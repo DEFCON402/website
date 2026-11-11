@@ -2,6 +2,8 @@
 title: "Computational Biology and Biohacking"
 date: 2026-10-13
 speaker: "Jake Madison"
+file: "computational-biology-and-biohacking.pdf"
+fileType: pdf
 tags: ["Biology", "Biohacking", "Computational Biology", "Science"]
 ---
 
