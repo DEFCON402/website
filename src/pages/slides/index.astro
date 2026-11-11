@@ -8,7 +8,7 @@ const allTalks = (await getCollection('talks')).sort(
 
 const talksData = allTalks.map(t => ({
   title: t.data.title,
-  date: t.data.date.toISOString(),
+  date: t.data.date.toISOString().slice(0, 10),
   file: t.data.file ?? null,
   speaker: t.data.speaker ?? null,
   tags: t.data.tags ?? [],
@@ -38,8 +38,17 @@ const talksData = allTalks.map(t => ({
     var DL_ICON  = '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>';
     var EYE_ICON = '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>';
 
+    function localDate(ymd) {
+      var p = ymd.split('-');
+      return new Date(+p[0], +p[1] - 1, +p[2]);
+    }
+    function isPast(ymd, now) {
+      var d = localDate(ymd);
+      d.setDate(d.getDate() + 1);
+      return d <= now;
+    }
     function fmtDate(iso) {
-      return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      return localDate(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     }
 
     function esc(s) {
@@ -79,7 +88,7 @@ const talksData = allTalks.map(t => ({
     }
 
     var now   = new Date();
-    var past  = talksData.filter(function(t){ return new Date(t.date) < now; });
+    var past  = talksData.filter(function(t){ return isPast(t.date, now); });
 
     if (past.length === 0) return;
 

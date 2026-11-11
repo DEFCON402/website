@@ -8,7 +8,7 @@ const allTalks = (await getCollection('talks')).sort(
 
 const talksData = allTalks.map(t => ({
   title: t.data.title,
-  date: t.data.date.toISOString(),
+  date: t.data.date.toISOString().slice(0, 10),
   speaker: t.data.speaker ?? null,
   tags: t.data.tags ?? [],
 }));
@@ -41,17 +41,26 @@ const talksData = allTalks.map(t => ({
         var talks = talksData;
         var now = new Date();
 
+        function localDate(ymd) {
+          var p = ymd.split('-');
+          return new Date(+p[0], +p[1] - 1, +p[2]);
+        }
+        function isPast(ymd, now) {
+          var d = localDate(ymd);
+          d.setDate(d.getDate() + 1);
+          return d <= now;
+        }
         function fmtDate(iso) {
-          return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+          return localDate(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
         }
 
         // talks is newest-first; previous = first entry before now, upcoming = last entry on/after now
         var previous = null;
         var upcoming = null;
         for (var i = 0; i < talks.length; i++) {
-          var d = new Date(talks[i].date);
-          if (d < now && !previous) previous = talks[i];
-          if (d >= now) upcoming = talks[i]; // keeps overwriting → ends up as the earliest future talk
+          var past = isPast(talks[i].date, now);
+          if (past && !previous) previous = talks[i];
+          if (!past) upcoming = talks[i]; // keeps overwriting → ends up as the earliest future talk
         }
 
         var upcomingCard = document.getElementById('upcoming-card');
